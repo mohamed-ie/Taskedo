@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1090768148889",
+    "project_id": "taskedo-b7b34",
+    "storage_bucket": "taskedo-b7b34.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1090768148889:android:c101f2e2fd6bdf15b7db08",
+        "android_client_info": {
+          "package_name": "com.mohamedie.taskedo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1090768148889-rndqaila345ecgc7cbvrv54g9li8ecjj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC5NmOwhsZl6FImVFIcqHGeV_W5gKWDwXU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1090768148889-gqvfejpnv7pr3l0c1hr2nhg6ncj7olna.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

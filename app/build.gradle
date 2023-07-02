@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'com.google.gms.google-services'
 }
 
 android {
@@ -64,4 +65,18 @@ dependencies {
     androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
     debugImplementation 'androidx.compose.ui:ui-tooling'
     debugImplementation 'androidx.compose.ui:ui-test-manifest'
+
+    //icons
+    implementation 'androidx.compose.material:material-icons-extended'
+
+    //navigation
+    implementation "androidx.navigation:navigation-compose:$nav_version"
+
+    //koin
+    implementation "io.insert-koin:koin-androidx-compose:$koin_android_compose_version"
+
+    //firebase
+    implementation "com.google.firebase:firebase-auth:$firebase_auth_version"
+    implementation "com.google.android.gms:play-services-auth:$play_services_auth"
+
 }
