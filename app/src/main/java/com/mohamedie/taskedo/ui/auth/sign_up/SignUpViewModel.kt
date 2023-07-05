@@ -50,6 +50,7 @@ class SignUpViewModel(
 
             is SignUpEvent.OnSignInWithGoogleResult ->
                 signUpWithGoogle(event.result)
+
         }
     }
 
@@ -94,14 +95,14 @@ class SignUpViewModel(
         state = state.copy(email = email, password = password, confirmPassword = confirmPassword)
     }
 
-    private fun createAccount() {
-        viewModelScope.launch {
-            state = state.copy(isLoading = true)
-            authManager.signUp(state.email.value, state.password.value)
-                .handle(onError = { state = state.copy(remoteError = it) },
-                    onSuccess = { _uiEvent.emit(SignUpUIEvent.NavigateToVerifyEmail) })
-            state = state.copy(isLoading = false)
-        }
+    private fun createAccount() = viewModelScope.launch {
+        state = state.copy(isLoading = true)
+        authManager.signUp(state.email.value, state.password.value)
+            .handle(
+                onError = { state = state.copy(remoteError = it) },
+                onSuccess = { _uiEvent.emit(SignUpUIEvent.NavigateToVerifyEmail) }
+            )
+        state = state.copy(isLoading = false)
     }
 
     private fun signUpWithGoogle(result: Task<GoogleSignInAccount>?) = viewModelScope.launch {

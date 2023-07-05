@@ -1,12 +1,15 @@
 package com.mohamedie.taskedo.utils
 
+import com.mohamedie.taskedo.R
+
 sealed interface Resource<out D> {
     class Success<D>(val data: D) : Resource<D>
-    class Error(val error: UIText) : Resource<Nothing>
+    class Error(val error: UIText = UIText.StringResource(R.string.unexpected_error_occurred_please_try_again_later)) :
+        Resource<Nothing>
 
 
-    fun <O> map(
-        transform: (D) -> O
+    suspend fun <O> map(
+        transform: suspend (D) -> O
     ): Resource<O> {
         return run {
             when (this) {
@@ -23,7 +26,10 @@ sealed interface Resource<out D> {
     }
 
 
-    suspend fun handle(onError: suspend (UIText) -> Unit = {}, onSuccess: suspend (D) -> Unit = {}) {
+    suspend fun handle(
+        onError: suspend (UIText) -> Unit = {},
+        onSuccess: suspend (D) -> Unit = {}
+    ) {
         when (this) {
             is Resource.Error -> onError(error)
             is Resource.Success -> onSuccess(this.data)

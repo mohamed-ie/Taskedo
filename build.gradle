@@ -5,6 +5,7 @@ buildscript {
         koin_android_compose_version = '3.4.5'
         firebase_auth_version = '22.0.0'
         play_services_auth = '20.6.0'
+        coil_version= '2.4.0'
     }
 }
 plugins {

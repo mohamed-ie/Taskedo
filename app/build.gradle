@@ -76,7 +76,16 @@ dependencies {
     implementation "io.insert-koin:koin-androidx-compose:$koin_android_compose_version"
 
     //firebase
-    implementation "com.google.firebase:firebase-auth:$firebase_auth_version"
+    implementation(platform("com.google.firebase:firebase-bom:32.1.1"))
+    implementation 'com.google.firebase:firebase-auth-ktx'
+    implementation 'com.google.firebase:firebase-firestore-ktx'
+    implementation 'com.google.firebase:firebase-storage-ktx'
+    implementation 'com.google.firebase:firebase-dynamic-links-ktx'
+
+    //coil
+    implementation "io.coil-kt:coil-compose:$coil_version"
+
+
     implementation "com.google.android.gms:play-services-auth:$play_services_auth"
 
 }

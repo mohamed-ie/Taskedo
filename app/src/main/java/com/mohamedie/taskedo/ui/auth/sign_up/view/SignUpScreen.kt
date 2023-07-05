@@ -15,25 +15,32 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 @Composable
-fun SignUpScreen(viewModel: SignUpViewModel, navigateTo: (String, NavOptions?) -> Unit) {
+fun SignUpScreen(
+    viewModel: SignUpViewModel,
+    navigateTo: (String, NavOptions?) -> Unit,
+) {
     val context = LocalContext.current
+    val state = viewModel.state
     LaunchedEffect(key1 = Unit) {
         viewModel.uiEvent.onEach {
             when (it) {
                 SignUpUIEvent.NavigateToHome -> {
                     Toast.makeText(context, R.string.sign_in_successful, Toast.LENGTH_SHORT).show()
-                    navigateTo(Graph.HOME, navOptions { popUpTo(Graph.HOME) })
+                    navigateTo(Graph.HOME, navOptions { popUpTo(Graph.AUTH) { inclusive = true } })
                 }
 
                 SignUpUIEvent.NavigateToVerifyEmail ->
-                    navigateTo(AuthGraph.VERIFY_EMAIL, null)
+                    navigateTo(
+                        AuthGraph.VERIFY_EMAIL,
+                        navOptions { popUpTo(Graph.AUTH) { inclusive = true } })
             }
         }.launchIn(this)
     }
 
     SignUpScreenContent(
-        state = viewModel.state,
+        state = state,
         onEvent = viewModel::onEvent,
-        navigateTo = { navigateTo(it, null) }
+        navigateTo = { navigateTo(it, navOptions { popUpTo(Graph.AUTH) { inclusive = true } }) }
     )
+
 }

@@ -1,4 +1,4 @@
-package com.mohamedie.taskedo.ui.auth.sign_up.view
+package com.mohamedie.taskedo.ui.auth.sign_in.view
 
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -50,8 +50,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.tasks.Task
 import com.mohamedie.taskedo.R
 import com.mohamedie.taskedo.ui.auth.AuthGraph
-import com.mohamedie.taskedo.ui.auth.sign_up.view.event.SignUpEvent
-import com.mohamedie.taskedo.ui.auth.sign_up.view.state.SignUpState
+import com.mohamedie.taskedo.ui.auth.sign_in.view.event.SignInEvent
+import com.mohamedie.taskedo.ui.auth.sign_in.view.state.SignInState
 import com.mohamedie.taskedo.ui.common.component.LabeledContent
 import com.mohamedie.taskedo.ui.common.component.RemoteErrorHeader
 import com.mohamedie.taskedo.ui.common.component.TaskedoOutlinedTextField
@@ -59,17 +59,18 @@ import com.mohamedie.taskedo.ui.theme.TaskedoTheme
 import com.mohamedie.taskedo.utils.taskedoLoading
 import org.koin.compose.koinInject
 
+
 @Composable
-fun SignUpScreenContent(
-    state: SignUpState,
-    onEvent: (SignUpEvent) -> Unit,
+fun SignInScreenContent(
+    state: SignInState,
+    onEvent: (SignInEvent) -> Unit,
     navigateTo: (String) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
 
     val googleSignInLauncher = rememberLauncherForActivityResult(
         contract = koinInject<ActivityResultContract<Intent, Task<GoogleSignInAccount>?>>(),
-        onResult = { onEvent(SignUpEvent.OnSignInWithGoogleResult(it)) }
+        onResult = { onEvent(SignInEvent.OnSignInWithGoogleResult(it)) }
     )
     val googleSignInIntent = koinInject<Intent>()
 
@@ -99,7 +100,7 @@ fun SignUpScreenContent(
                     modifier = Modifier.fillMaxWidth(),
                     value = email.value,
                     readOnly = state.isLoading,
-                    onValueChange = { onEvent(SignUpEvent.EmailChanged(it)) },
+                    onValueChange = { onEvent(SignInEvent.EmailChanged(it)) },
                     shape = MaterialTheme.shapes.medium,
                     placeholder = { Text(text = stringResource(id = R.string.email_placeholder)) },
                     keyboardOptions = KeyboardOptions(
@@ -125,21 +126,17 @@ fun SignUpScreenContent(
                     modifier = Modifier.fillMaxWidth(),
                     value = password.value,
                     readOnly = state.isLoading,
-                    onValueChange = { onEvent(SignUpEvent.PasswordChanged(it)) },
+                    onValueChange = { onEvent(SignInEvent.PasswordChanged(it)) },
                     shape = MaterialTheme.shapes.medium,
                     visualTransformation = if (password.isTrailingIconVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     keyboardOptions = KeyboardOptions(
-                        imeAction = ImeAction.Next,
+                        imeAction = ImeAction.Done,
                         autoCorrect = false,
                         keyboardType = KeyboardType.Password
                     ),
-                    keyboardActions = KeyboardActions(onNext = {
-                        focusManager.moveFocus(
-                            FocusDirection.Down
-                        )
-                    }),
+                    keyboardActions = KeyboardActions(onDone = { onEvent(SignInEvent.SignIn) }),
                     trailingIcon = {
-                        IconButton(onClick = { onEvent(SignUpEvent.TogglePasswordVisibility) }) {
+                        IconButton(onClick = { onEvent(SignInEvent.TogglePasswordVisibility) }) {
                             Icon(
                                 imageVector = if (password.isTrailingIconVisible) Icons.TwoTone.Visibility else Icons.TwoTone.VisibilityOff,
                                 contentDescription = stringResource(id = R.string.toggle_password_visibility)
@@ -150,45 +147,32 @@ fun SignUpScreenContent(
             })
         Spacer(modifier = Modifier.height(16.dp))
 
-        val confirmPassword = state.confirmPassword
-        LabeledContent(
-            label = stringResource(id = R.string.confirm_password),
-            error = confirmPassword.error?.asString()
-        ) {
-            TaskedoOutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = confirmPassword.value,
-                readOnly = state.isLoading,
-                onValueChange = { onEvent(SignUpEvent.ConfirmPasswordChanged(it)) },
-                shape = MaterialTheme.shapes.medium,
-                visualTransformation = if (confirmPassword.isTrailingIconVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Done,
-                    autoCorrect = false,
-                    keyboardType = KeyboardType.Password
-                ),
-                keyboardActions = KeyboardActions(onDone = { onEvent(SignUpEvent.CreateAccount) }),
-                trailingIcon = {
-                    IconButton(onClick = { onEvent(SignUpEvent.ToggleConfirmPasswordVisibility) }) {
-                        Icon(
-                            imageVector = if (confirmPassword.isTrailingIconVisible) Icons.TwoTone.Visibility else Icons.TwoTone.VisibilityOff,
-                            contentDescription = stringResource(id = R.string.toggle_password_visibility)
-                        )
-                    }
-                }
+        val forgotPasswordAnnotatedString = buildAnnotatedString {
+            pushStringAnnotation(
+                tag = "forgot_password",
+                annotation = stringResource(id = R.string.forgot_password)
             )
+            withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+                append(stringResource(id = R.string.forgot_password))
+            }
+            pop()
         }
+        ClickableText(
+            text = forgotPasswordAnnotatedString,
+            onClick = { onEvent(SignInEvent.SendRestPasswordEmail) }
+        )
+
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
             modifier = Modifier.fillMaxWidth(),
             enabled = !state.isLoading,
             shape = MaterialTheme.shapes.medium,
-            onClick = { onEvent(SignUpEvent.CreateAccount) }
+            onClick = { onEvent(SignInEvent.SignIn) }
         ) {
             Text(
                 modifier = Modifier.taskedoLoading(state.isLoading),
-                text = stringResource(id = R.string.create_account),
+                text = stringResource(id = R.string.sign_in),
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Bold
             )
@@ -224,21 +208,21 @@ fun SignUpScreenContent(
                 )
                 Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
                 Text(
-                    text = stringResource(id = R.string.sign_up_with_google),
+                    text = stringResource(id = R.string.sign_in_with_google),
                     style = MaterialTheme.typography.bodyLarge,
                 )
             }
         }
 
-        val annotatedText = buildAnnotatedString {
-            append(stringResource(id = R.string.already_have_an_account))
+        val signUpAnnotatedText = buildAnnotatedString {
+            append(stringResource(id = R.string.dont_have_account))
             append(" ")
             pushStringAnnotation(
-                tag = "sign_in",
-                annotation = stringResource(id = R.string.sign_in)
+                tag = "sign_up",
+                annotation = stringResource(id = R.string.sign_up)
             )
             withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
-                append(stringResource(id = R.string.sign_in))
+                append(stringResource(id = R.string.sign_up))
             }
             pop()
         }
@@ -246,19 +230,19 @@ fun SignUpScreenContent(
         Spacer(modifier = Modifier.height(16.dp))
 
         ClickableText(
-            text = annotatedText,
-            onClick = { navigateTo(AuthGraph.SIGN_IN) }
+            text = signUpAnnotatedText,
+            onClick = { navigateTo(AuthGraph.SIGN_UP) }
         )
         Spacer(modifier = Modifier.weight(1f))
     }
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
-fun PreviewSignUpScreenContent() {
+fun PreviewLoginScreenContent() {
     TaskedoTheme {
         Surface(color = MaterialTheme.colorScheme.background) {
-            SignUpScreenContent(SignUpState(), {}, {})
+            SignInScreenContent(SignInState(), {}, {})
         }
     }
 }
